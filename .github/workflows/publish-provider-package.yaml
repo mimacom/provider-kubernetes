@@ -14,6 +14,9 @@ on:
 
 jobs:
   publish-provider-package:
+    # Only mima-release-* branches may publish/release the provider package;
+    # release-fork.yml dispatches this workflow against that branch.
+    if: startsWith(github.ref, 'refs/heads/mima-release-')
     uses: crossplane-contrib/provider-workflows/.github/workflows/publish-provider-non-family.yml@451c4dc6ad3691b0a702a997a0ac24e8bbc8bbaa # main
     with:
       registry_org: mimacom
@@ -30,7 +33,7 @@ jobs:
     name: Sign OCI Package
     needs: [publish-provider-package]
     runs-on: ubuntu-latest
-    if: github.event.inputs.version != ''
+    if: github.event.inputs.version != '' && startsWith(github.ref, 'refs/heads/mima-release-')
     permissions:
       contents: write
       packages: write
