@@ -85,17 +85,19 @@
       "managerFilePatterns": ["/^Makefile$/"],
       "matchStrings": ["CROSSPLANE_VERSION \\??= (?<currentValue>.*?)\\n"],
       "datasourceTemplate": "github-releases",
-      "depNameTemplate": "crossplane/crossplane"
+      "depNameTemplate": "crossplane/crossplane",
+      "extractVersionTemplate": "^(?<version>.*)$"
     },
     {
       // We want a PR to bump Crossplane CLI versions used through make variables in
-      // the Makefile, taking it from the official Github repository releases.
+      // the Makefile. Since v2.3.0 the CLI is released from crossplane/cli, not
+      // crossplane/crossplane, whose newer tags have no CLI binary to download.
       "customType": "regex",
       "description": "Bump Crossplane CLI version in the Makefile",
       "managerFilePatterns": ["/^Makefile$/"],
       "matchStrings": ["CROSSPLANE_CLI_VERSION \\??= (?<currentValue>.*?)\\n"],
       "datasourceTemplate": "github-releases",
-      "depNameTemplate": "crossplane/crossplane"
+      "depNameTemplate": "crossplane/cli"
     }
   ],
   // PackageRules disabled below should be enabled in case of vulnerabilities
@@ -114,7 +116,9 @@
       "matchDatasources": ["go"],
       "groupName": "kubernetes patches",
       "matchUpdateTypes": ["patch", "digest"],
-      "matchPackageNames": ["k8s.io{/,}**", "sigs.k8s.io{/,}**"]
+      // Do not include k8s.io/utils and k8s.io/kube-openapi, they have no version tags
+      // let other k8s dependencies auto-manage them transitively
+      "matchPackageNames": ["k8s.io{/,}**", "sigs.k8s.io{/,}**", "!k8s.io/utils{/,}**", "!k8s.io/kube-openapi{/,}**"]
     },
     {
       // We want dedicated PRs for each minor and major bumps to kubernetes related
@@ -122,6 +126,15 @@
       "matchDatasources": ["go"],
       "matchUpdateTypes": ["major", "minor"],
       "matchPackageNames": ["k8s.io{/,}**", "sigs.k8s.io{/,}**"]
+    },
+    {
+      // Explicitly disable k8s.io/utils and k8s.io/kube-openapi digest updates,
+      // they have no version tags, let other k8s dependencies auto-manage them
+      // transitively
+      "matchDatasources": ["go"],
+      "matchUpdateTypes": ["digest"],
+      "enabled": false,
+      "matchPackageNames": ["k8s.io/utils{/,}**", "k8s.io/kube-openapi{/,}**"]
     },
     {
       // We want dedicated PRs for each bump to non-kubernetes Go dependencies, but
