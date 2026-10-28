@@ -17,7 +17,7 @@ jobs:
     # Only mima-release-* branches may publish/release the provider package;
     # release-fork.yml dispatches this workflow against that branch.
     if: startsWith(github.ref, 'refs/heads/mima-release-')
-    uses: crossplane-contrib/provider-workflows/.github/workflows/publish-provider-non-family.yml@451c4dc6ad3691b0a702a997a0ac24e8bbc8bbaa # main
+    uses: crossplane-contrib/provider-workflows/.github/workflows/publish-provider-non-family.yml@d8bb2978c8987635b2fddb5bd9c2868bd14117b0
     with:
       registry_org: mimacom
       repository: provider-kubernetes
